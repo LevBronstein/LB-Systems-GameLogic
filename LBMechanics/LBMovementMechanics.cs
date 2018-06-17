@@ -5,18 +5,18 @@ using UnityEngine;
 namespace LBMechanics
 {
 	[CreateAssetMenu(fileName = "NewGroundMovementMechanic", menuName = "LBMechanics/GroundMovementMechanic")]
-	public class LBGroundMovementMechanic: LBMechanicBase
+	public class LBGroundMovementMechanic: LBTransitionMechanic
 	{
-		LBMechanicsExecutor mechexec;
 		Animator animator;
 		Rigidbody rb;
-
-		public string[] SwitchesFrom;
 
 		public Vector3 MovementDir;
 		public float MovementSpeed;
 
 		public string MovementAnim;
+		public float AnimBlendTime = 0.1f;
+
+		/***************************************** Init stuff *****************************************/
 
 		public override void InitMechanic()
 		{
@@ -31,8 +31,10 @@ namespace LBMechanics
 
 			animator = parent.GetComponent<Animator> ();
 			rb = parent.GetComponent<Rigidbody> ();
-			mechexec = parent.GetComponent<LBMechanicsExecutor> ();
+			//mechexec = parent.GetComponent<LBMechanicsExecutor> ();
 		}
+
+		/************************************** Mechanic-related stuff *******************************/
 
 		public override void Tick()
 		{
@@ -42,14 +44,15 @@ namespace LBMechanics
 
 		public override bool ActivateMechanic()
 		{
-			mechexec.DeactivateAllGroup (this);
-
 			base.ActivateMechanic ();
 
-			animator.Play (MovementAnim);
+			//animator.Play (MovementAnim);
+			animator.CrossFade(MovementAnim,1);
 
 			return true;
 		}
+
+		/************************************** Game logic ******************************************/
 
 		void PerformMovement()
 		{

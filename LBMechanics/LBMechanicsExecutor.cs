@@ -12,7 +12,8 @@ public struct MechanicGroup
 	public uint DefaultActiveMechanic;
 }
 
-public class LBMechanicsExecutor : MonoBehaviour {
+public class LBMechanicsExecutor : MonoBehaviour 
+{
 
 	public MechanicGroup[] MechanicGroups;
 
@@ -36,7 +37,8 @@ public class LBMechanicsExecutor : MonoBehaviour {
 		if (m == null)
 			return;
 
-		m.ActivateMechanic ();
+		if (m.CanActivateMechanic())
+			m.ActivateMechanic ();
 	}
 
 	public void DeactivateAllGroup(LBMechanicBase mech)
@@ -133,6 +135,37 @@ public class LBMechanicsExecutor : MonoBehaviour {
 		return null;
 	}
 
+	//Find active mechanic in a group, where <mech> is nested (for groups with exclusive activation)
+	public LBMechanicBase FindActiveMechanic(LBMechanicBase mech)
+	{
+		string group = FindGroup (mech);
+
+		if (group == "")
+			return null;
+
+		return FindActiveMechanic (group);
+	}
+
+	//Find active mechanic in a certain group (for groups with exclusive activation)
+	public LBMechanicBase FindActiveMechanic(string group)
+	{
+		int i, j;
+
+		for (i = 0; i < MechanicGroups.Length; i++) 
+		{
+			if (MechanicGroups[i].GroupName==group)
+			{
+				for (j = 0; j < MechanicGroups[i].Mechanics.Length; j++) 
+				{
+					if (MechanicGroups[i].Mechanics[j].bIsActive)
+						return MechanicGroups[i].Mechanics[j];
+				}
+			}
+		}
+
+		return null;
+	}
+		
 	public string FindGroup(LBMechanicBase mech)
 	{
 		int i, j;

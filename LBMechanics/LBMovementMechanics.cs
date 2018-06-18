@@ -7,14 +7,12 @@ namespace LBMechanics
 	[CreateAssetMenu(fileName = "NewGroundMovementMechanic", menuName = "LBMechanics/GroundMovementMechanic")]
 	public class LBGroundMovementMechanic: LBTransitionMechanic
 	{
-		Animator animator;
 		Rigidbody rb;
+
+		public bool IsTrasitive;
 
 		public Vector3 MovementDir;
 		public float MovementSpeed;
-
-		public string MovementAnim;
-		public float AnimBlendTime = 0.1f;
 
 		/***************************************** Init stuff *****************************************/
 
@@ -29,7 +27,6 @@ namespace LBMechanics
 		{
 			base.LockMechanic(p);
 
-			animator = parent.GetComponent<Animator> ();
 			rb = parent.GetComponent<Rigidbody> ();
 			//mechexec = parent.GetComponent<LBMechanicsExecutor> ();
 		}
@@ -39,6 +36,9 @@ namespace LBMechanics
 		public override void Tick()
 		{
 			//Debug.Log (mechanicname + ": Hello!");
+			if (IsTrasitive)
+				base.Tick ();
+
 			PerformMovement();
 		}
 
@@ -47,7 +47,7 @@ namespace LBMechanics
 			base.ActivateMechanic ();
 
 			//animator.Play (MovementAnim);
-			animator.CrossFade(MovementAnim,1);
+			animator.CrossFade(Animation,AnimBlendTime);
 
 			return true;
 		}

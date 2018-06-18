@@ -29,10 +29,21 @@ public class LBMechanicsExecutor : MonoBehaviour
 
 		DebugFunc ();
 	}
-
+		
 	public void ActivateMechanic(string name)
 	{
 		LBMechanicBase m = FindMechanic (name);
+
+		if (m == null)
+			return;
+
+		if (m.CanActivateMechanic())
+			m.ActivateMechanic ();
+	}
+
+	public void ActivateMechanic(string group, string name)
+	{
+		LBMechanicBase m = FindMechanic(group, name);
 
 		if (m == null)
 			return;
@@ -184,12 +195,12 @@ public class LBMechanicsExecutor : MonoBehaviour
 		
 	void DebugFunc()
 	{
-		if (Input.GetKeyDown (KeyCode.Alpha1)) 
+		if (Input.GetKeyDown (KeyCode.UpArrow)) 
 		{
-			ActivateMechanic ("Default:XW_Grnd_Move");
+			ActivateMechanic ("Default:XW_Grnd_Stand_To_Move");
 		}
 
-		if (Input.GetKeyDown (KeyCode.Alpha2)) 
+		if (Input.GetKeyUp(KeyCode.UpArrow)) 
 		{
 			ActivateMechanic ("Default:XW_Grnd_Stand");
 		}
@@ -198,6 +209,11 @@ public class LBMechanicsExecutor : MonoBehaviour
 		{
 			ActivateMechanic ("Default:XW_Grnd_Run");
 		}
+
+		if (Input.GetKeyDown (KeyCode.Space)) 
+		{
+			ActivateMechanic ("Default:XW_Grnd_Move_To_Air");
+		} 
 	}
 
 }

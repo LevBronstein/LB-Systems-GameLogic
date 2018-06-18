@@ -4,24 +4,14 @@ using UnityEngine;
 
 namespace LBMechanics
 {
-	[CreateAssetMenu(fileName = "NewGroundMovementMechanic", menuName = "LBMechanics/GroundMovementMechanic")]
-	public class LBGroundMovementMechanic: LBTransitionMechanic
+	public abstract class LBMovementMechanic: LBTransitionMechanic
 	{
-		Rigidbody rb;
+		protected Rigidbody rb;
 
 		public bool IsTrasitive;
 
 		public Vector3 MovementDir;
 		public float MovementSpeed;
-
-		/***************************************** Init stuff *****************************************/
-
-		public override void InitMechanic()
-		{
-			base.InitMechanic ();
-
-			//mechanicname="GroundMovementMechanic";
-		}
 
 		public override void LockMechanic (GameObject p)
 		{
@@ -30,8 +20,6 @@ namespace LBMechanics
 			rb = parent.GetComponent<Rigidbody> ();
 			//mechexec = parent.GetComponent<LBMechanicsExecutor> ();
 		}
-
-		/************************************** Mechanic-related stuff *******************************/
 
 		public override void Tick()
 		{
@@ -42,6 +30,38 @@ namespace LBMechanics
 			PerformMovement();
 		}
 
+		public Vector3 Direction
+		{
+			get
+			{
+				return MovementDir;
+			}
+			set 
+			{
+				MovementDir = value;
+			}
+		}
+
+		public float Speed
+		{
+			get
+			{
+				return MovementSpeed;
+			}
+			set 
+			{
+				MovementSpeed = value;
+			}
+		}
+
+		protected virtual void PerformMovement()
+		{}
+	}
+
+
+	[CreateAssetMenu(fileName = "NewGroundMovementMechanic", menuName = "LBMechanics/GroundMovementMechanic")]
+	public class LBGroundMovementMechanic: LBMovementMechanic
+	{
 		public override bool ActivateMechanic()
 		{
 			base.ActivateMechanic ();
@@ -51,12 +71,93 @@ namespace LBMechanics
 
 			return true;
 		}
+	}
 
-		/************************************** Game logic ******************************************/
+	[CreateAssetMenu(fileName = "NewAirMovementMechanic", menuName = "LBMechanics/AirMovementMechanic")]
+	public class LBAirMovementMechanic: LBMovementMechanic
+	{
+		public override bool ActivateMechanic()
+		{
+			base.ActivateMechanic ();
 
-		void PerformMovement()
+			//animator.Play (MovementAnim);
+			animator.CrossFade(Animation,AnimBlendTime);
+
+			return true;
+		}
+			
+		protected override void PerformMovement()
 		{
 			rb.MovePosition(rb.position + MovementDir * MovementSpeed);
+		}
+	}
+		
+	[CreateAssetMenu(fileName = "NewMovementTransitionMechanic", menuName = "LBMechanics/MovementTransitionMechanic")]
+	public class LBMovementTransitionMechanic: LBTransitionMechanic
+	{
+		public bool CheckIsOnGround;
+		public bool CheckIsInAir;
+		public bool CheckIsMoving;
+
+		public override bool CanActivateMechanic()
+		{
+			if (base.CanActivateMechanic () == false)
+				return false;
+
+			if (CheckIsOnGround) 
+			{
+				if (!IsOnGround ())
+					return false;
+			}
+				
+			if (CheckIsInAir) 
+			{
+				if (!IsInAir ())
+					return false;
+			}
+
+			if (CheckIsMoving) 
+			{
+				if (!IsMoving ())
+					return false;
+			}
+
+			return false;
+		}
+
+		bool IsOnGround()
+		{
+			Collider c;
+			Ray r;
+			RaycastHit hit;
+
+			c = parent.GetComponent<Collider>();
+
+			if (c == null)
+				return false;
+
+			r = new Ray (c.bounds.center, Vector3.down);
+
+			Debug.DrawRay (r.origin, r.direction, Color.green);
+
+			if (Physics.Raycast (r.origin, r.direction, out hit, c.bounds.extents.y+0.05f)) 
+			{
+				Debug.Log (hit.transform.gameObject.name);
+				if (hit.transform.gameObject.name != parent.name)
+					return true;
+			}
+				
+			return false;
+		}
+
+		bool IsInAir()
+		{
+			return false;
+		}
+
+		bool IsMoving()
+		{
+			return false;
 		}
 	}
 }

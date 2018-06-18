@@ -63,7 +63,8 @@ namespace LBMechanics
 
 			base.ActivateMechanic (); //activate current mechanic
 
-			animator.CrossFade(Animation,AnimBlendTime);
+			if (Animation != "")
+				animator.CrossFade(Animation,AnimBlendTime);
 
 			return true;
 		}

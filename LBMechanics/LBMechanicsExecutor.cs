@@ -205,9 +205,9 @@ public class LBMechanicsExecutor : MonoBehaviour
 			ActivateMechanic ("Default:XW_Grnd_Stand");
 		}
 
-		if (Input.GetKeyDown (KeyCode.Alpha3)) 
+		if (Input.GetKeyDown (KeyCode.Alpha1)) 
 		{
-			ActivateMechanic ("Default:XW_Grnd_Run");
+			ActivateMechanic ("Default:XW_Trans_Test");
 		}
 
 		if (Input.GetKeyDown (KeyCode.Space)) 

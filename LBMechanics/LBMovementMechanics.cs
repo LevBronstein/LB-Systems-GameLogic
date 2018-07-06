@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/*A mechanic, which is able to translate (move) gameobject*/
 namespace LBMechanics
 {
 	public abstract class LBMovementMechanic: LBTransitionMechanic
@@ -58,7 +59,7 @@ namespace LBMechanics
 		{}
 	}
 
-
+	/*A specialized mechanic for handling ground movment*/
 	[CreateAssetMenu(fileName = "NewGroundMovementMechanic", menuName = "LBMechanics/GroundMovementMechanic")]
 	public class LBGroundMovementMechanic: LBMovementMechanic
 	{
@@ -70,6 +71,11 @@ namespace LBMechanics
 			animator.CrossFade(Animation,AnimBlendTime);
 
 			return true;
+		}
+
+		protected override void PerformMovement()
+		{
+			rb.velocity = MovementDir * MovementSpeed;
 		}
 	}
 
@@ -92,12 +98,22 @@ namespace LBMechanics
 		}
 	}
 		
+/*****************************************Transition mechanics**********************************************************/
+
+	/*A basic transition mechanic for handling movement transitions*/
 	[CreateAssetMenu(fileName = "NewMovementTransitionMechanic", menuName = "LBMechanics/MovementTransitionMechanic")]
 	public class LBMovementTransitionMechanic: LBTransitionMechanic
 	{
 		public bool CheckIsOnGround;
 		public bool CheckIsInAir;
 		public bool CheckIsMoving;
+
+		public bool CheckTakeOff;
+		public bool CheckLand;
+		public bool ChekcBump;
+
+		bool wasonground;
+		bool wasinair;
 
 		public override bool CanActivateMechanic()
 		{
@@ -106,26 +122,33 @@ namespace LBMechanics
 
 			if (CheckIsOnGround) 
 			{
-				if (!IsOnGround ())
-					return false;
+				return CheckBasePlacement ();
 			}
 				
 			if (CheckIsInAir) 
 			{
-				if (!IsInAir ())
-					return false;
+				return !CheckBasePlacement ();
 			}
 
 			if (CheckIsMoving) 
 			{
-				if (!IsMoving ())
-					return false;
+				return false;
+			}
+
+			if (CheckTakeOff) 
+			{
+				return false;
+			}
+
+			if (CheckLand) 
+			{
+				return false;
 			}
 
 			return false;
 		}
 
-		bool IsOnGround()
+		bool CheckBasePlacement()
 		{
 			Collider c;
 			Ray r;
@@ -142,22 +165,28 @@ namespace LBMechanics
 
 			if (Physics.Raycast (r.origin, r.direction, out hit, c.bounds.extents.y+0.05f)) 
 			{
-				Debug.Log (hit.transform.gameObject.name);
+				//Debug.Log (hit.transform.gameObject.name);
 				if (hit.transform.gameObject.name != parent.name)
 					return true;
 			}
-				
+
 			return false;
+		}
+
+		bool IsOnGround()
+		{
+			return CheckBasePlacement ();
 		}
 
 		bool IsInAir()
 		{
-			return false;
+			return !CheckBasePlacement ();
 		}
 
 		bool IsMoving()
 		{
 			return false;
 		}
+			
 	}
 }

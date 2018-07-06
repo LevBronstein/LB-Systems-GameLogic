@@ -56,7 +56,10 @@ namespace LBMechanics
 		//Checks conditions -- if this mechanic can be activated right now
 		public virtual bool CanActivateMechanic()
 		{
-			return true;
+			if (!isactive)
+				return true;
+			else
+				return false;
 		}
 
 		//Tries to activate this mechanic
@@ -69,7 +72,6 @@ namespace LBMechanics
 		//Checks conditions -- if this mechanic can be deactivated right now
 		public virtual bool CanDeactivateMechanic()
 		{
-			isactive = false;
 			return true;
 		}
 
@@ -82,6 +84,11 @@ namespace LBMechanics
 
 		public virtual void Tick()
 		{
+		}
+
+		public override string ToString()
+		{
+			return "Mechanic: "+mechanicname+"\n"+"Parent:"+parent+"\n"+"Tick every frame: "+needstick+"\n"+"Auto-activated: "+autoactivated+"\n"+"Is active: "+isactive;
 		}
 	}
 }

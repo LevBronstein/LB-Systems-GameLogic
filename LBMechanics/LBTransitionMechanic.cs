@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/*A mechanic, which is able to switch to and from mechanics with animation blending*/
 namespace LBMechanics
 {
 	[CreateAssetMenu(fileName = "NewTransitionMechanic", menuName = "LBMechanics/TransitionMechanic")]
@@ -20,6 +21,7 @@ namespace LBMechanics
 
 		/***************************************** Init stuff *****************************************/
 
+		/*Binds this mechanism to a certain gameobject (its parent)*/
 		public override void LockMechanic (GameObject p)
 		{
 			base.LockMechanic(p);
@@ -41,6 +43,9 @@ namespace LBMechanics
 		{
 			int i;
 			LBMechanicBase m;
+
+			if (!base.CanActivateMechanic ())
+				return false;
 
 			m=mechexec.FindActiveMechanic (this);
 

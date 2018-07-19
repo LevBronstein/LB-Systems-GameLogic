@@ -13,6 +13,7 @@ namespace LBMechanics
 
 		public Vector3 MovementDir;
 		public float MovementSpeed;
+		public float Acceleration;
 
 		public override void LockMechanic (GameObject p)
 		{
@@ -75,7 +76,13 @@ namespace LBMechanics
 
 		protected override void PerformMovement()
 		{
-			rb.velocity = MovementDir * MovementSpeed;
+			float f;
+			float t;
+
+			t = Acceleration/(MovementSpeed - rb.velocity.magnitude);
+
+			f = Mathf.Lerp (rb.velocity.magnitude, MovementSpeed, t);
+			rb.velocity = MovementDir * f;
 		}
 	}
 
@@ -104,16 +111,22 @@ namespace LBMechanics
 	[CreateAssetMenu(fileName = "NewMovementTransitionMechanic", menuName = "LBMechanics/MovementTransitionMechanic")]
 	public class LBMovementTransitionMechanic: LBTransitionMechanic
 	{
+		protected Rigidbody rb;
+
 		public bool CheckIsOnGround;
 		public bool CheckIsInAir;
-		public bool CheckIsMoving;
+		public bool CheckSpeedMagnitude;
+		public float MagnitudeLimit;
+	
+		public override void LockMechanic (GameObject p)
+		{
+			base.LockMechanic(p);
 
-		public bool CheckTakeOff;
-		public bool CheckLand;
-		public bool ChekcBump;
+			rb = parent.GetComponent<Rigidbody> ();
 
-		bool wasonground;
-		bool wasinair;
+			if (rb == null)
+				Debug.LogWarning (MechanicName + ": Cannot lock mechanic -- rigid body not found!");
+		}
 
 		public override bool CanActivateMechanic()
 		{
@@ -130,17 +143,7 @@ namespace LBMechanics
 				return !CheckBasePlacement ();
 			}
 
-			if (CheckIsMoving) 
-			{
-				return false;
-			}
-
-			if (CheckTakeOff) 
-			{
-				return false;
-			}
-
-			if (CheckLand) 
+			if (CheckSpeedMagnitude) 
 			{
 				return false;
 			}
@@ -173,20 +176,12 @@ namespace LBMechanics
 			return false;
 		}
 
-		bool IsOnGround()
+		bool CheckSpeedValue()
 		{
-			return CheckBasePlacement ();
-		}
+			if (rb.velocity.magnitude <= MagnitudeLimit)
+				return true;
 
-		bool IsInAir()
-		{
-			return !CheckBasePlacement ();
-		}
-
-		bool IsMoving()
-		{
 			return false;
-		}
-			
+		}			
 	}
 }

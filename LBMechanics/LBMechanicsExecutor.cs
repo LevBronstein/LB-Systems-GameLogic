@@ -208,7 +208,7 @@ namespace LBMechanics
 
 			if (Input.GetKeyUp(KeyCode.UpArrow)) 
 			{
-				ActivateMechanic ("Default:XW_Grnd_Stand");
+				ActivateMechanic ("Default:XW_Grnd_Move_To_Stand");
 			}
 
 			if (Input.GetKeyDown (KeyCode.Alpha1)) 

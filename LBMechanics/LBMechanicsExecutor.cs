@@ -6,7 +6,6 @@ using LBMechanics;
 
 namespace LBMechanics
 {
-	
 	[System.Serializable]
 	public struct MechanicGroup
 	{

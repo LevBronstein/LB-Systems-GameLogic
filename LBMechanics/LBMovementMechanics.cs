@@ -1,18 +1,25 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 /*A mechanic, which is able to translate (move) gameobject*/
 namespace LBMechanics
-{
+{		
 	public abstract class LBMovementMechanic: LBTransitionMechanic
 	{
 		protected Rigidbody rb;
 
 		public bool IsTrasitive;
 
+		public string MovementDir_CV = "Movement_Direction"; //name of the control value
+		public string MovementSpeed_CV = "Movement_Speed"; //name of the control value
+
+		//real values
+		public bool UseControlValues;
 		public Vector3 MovementDir;
 		public float MovementSpeed;
+	
 		public float Acceleration;
 
 		public override void LockMechanic (GameObject p)
@@ -23,11 +30,29 @@ namespace LBMechanics
 			//mechexec = parent.GetComponent<LBMechanicsExecutor> ();
 		}
 
+		//Get values from control values
+		// Тут могут потенциально возникать ошибки при преобразованиях
+		void GetMovementValues()
+		{
+			object o;
+
+			o = GetControlValue (MovementDir_CV);
+			if (o!=null)
+				MovementDir = (Vector3)(o);
+
+			o = GetControlValue (MovementSpeed_CV);
+			if (o!=null)
+				MovementSpeed = Convert.ToSingle(o);
+		}
+
 		public override void Tick()
 		{
 			//Debug.Log (mechanicname + ": Hello!");
 			if (IsTrasitive)
 				base.Tick ();
+
+			if (UseControlValues)
+				GetMovementValues ();
 
 			PerformMovement();
 		}
@@ -78,11 +103,14 @@ namespace LBMechanics
 		{
 			float f;
 			float t;
+			Vector3 v;
 
-			t = Acceleration/(MovementSpeed - rb.velocity.magnitude);
-
-			f = Mathf.Lerp (rb.velocity.magnitude, MovementSpeed, t);
-			rb.velocity = MovementDir * f;
+			v=rb.transform.InverseTransformVector (rb.velocity); // преобразуем скорость в локальную систему (Z-fwd)
+			t = Acceleration/(MovementSpeed - v.z); // измеряем необходимое ускорение (Z -- скорость движения вперёд)
+			f = Mathf.Lerp (v.z, MovementSpeed, t);  // сглаживаем
+			v.x=0; v.z=f; // убираем движение вбок (по X), движение вперёд оставляем
+			rb.velocity = rb.transform.TransformVector(v); // преобразуем скорость в глобальную систему
+			rb.MoveRotation (Quaternion.LookRotation (MovementDir)); // ставим необходимый поворот
 		}
 	}
 

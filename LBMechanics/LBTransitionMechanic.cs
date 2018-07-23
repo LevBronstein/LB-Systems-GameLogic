@@ -82,6 +82,25 @@ namespace LBMechanics
 			mechexec.ActivateMechanic (mechexec.FindGroup(this), TransfersTo);
 		}
 
+		/************************************** Control value handling *******************************/
+
+		protected object GetControlValue(string valuename)
+		{
+			LBCharacterController ctrl;
+
+			ctrl = (LBCharacterController)mechexec;
+
+			if (ctrl == null)
+				return null;
+
+			object value;
+
+			value = ctrl.GetControlValue (valuename);
+
+			return value;
+		}
+
+		//пофиксить, если нет анимации
 		public override void Tick()
 		{
 			if (animator.GetCurrentAnimatorStateInfo (AnimLayer).normalizedTime >= 1) 

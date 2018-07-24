@@ -6,19 +6,33 @@ using UnityEngine;
 /*A mechanic, which is able to translate (move) gameobject*/
 namespace LBMechanics
 {		
-	public abstract class LBMovementMechanic: LBTransitionMechanic
+
+	public enum MM_PositionTypes
+	{
+		Grounded,
+		Airbourne
+	}
+
+	public enum MM_LocomotionTypes
+	{
+		Static,
+		Moving
+	}
+
+	public abstract class LBMovementMechanic: LBConditionalTransitionMechanic
 	{
 		protected Rigidbody rb;
 
-		public bool IsTrasitive;
-
-		public string MovementDir_CV = "Movement_Direction"; //name of the control value
-		public string MovementSpeed_CV = "Movement_Speed"; //name of the control value
+		//public string MovementDir_CV = "Movement_Direction"; //name of the control value
+		//public string MovementSpeed_CV = "Movement_Speed"; //name of the control value
 
 		//real values
-		public bool UseControlValues;
-		public Vector3 MovementDir;
-		public float MovementSpeed;
+		//public bool UseControlValues;
+		protected Vector3 MovementDir;
+		protected float MovementSpeed;
+
+		public MechanicParameter CV_MovementDir = new MechanicParameter ("Movement_Direction");
+		public MechanicParameter CV_MovementSpeed = new MechanicParameter ("Movement_Speed");
 	
 		public float Acceleration;
 
@@ -36,11 +50,11 @@ namespace LBMechanics
 		{
 			object o;
 
-			o = GetControlValue (MovementDir_CV);
+			o = GetControlValue (CV_MovementDir);
 			if (o!=null)
 				MovementDir = (Vector3)(o);
 
-			o = GetControlValue (MovementSpeed_CV);
+			o = GetControlValue (CV_MovementSpeed);
 			if (o!=null)
 				MovementSpeed = Convert.ToSingle(o);
 		}
@@ -48,11 +62,9 @@ namespace LBMechanics
 		public override void Tick()
 		{
 			//Debug.Log (mechanicname + ": Hello!");
-			if (IsTrasitive)
-				base.Tick ();
+			base.Tick ();
 
-			if (UseControlValues)
-				GetMovementValues ();
+			GetMovementValues ();
 
 			PerformMovement();
 		}
@@ -60,29 +72,30 @@ namespace LBMechanics
 		public Vector3 Direction
 		{
 			get
-			{
-				return MovementDir;
-			}
+			{ return MovementDir; }
 			set 
-			{
-				MovementDir = value;
-			}
+			{ MovementDir = value; }
 		}
 
 		public float Speed
 		{
 			get
-			{
-				return MovementSpeed;
-			}
+			{ return MovementSpeed; }
 			set 
-			{
-				MovementSpeed = value;
-			}
+			{ MovementSpeed = value; }
 		}
 
 		protected virtual void PerformMovement()
 		{}
+	}
+
+	public abstract class LBConditionalMovementMechanic: LBConditionalTransitionMechanic
+	{
+		
+		protected override bool CheckConditions()
+		{
+			return true;
+		}
 	}
 
 	/*A specialized mechanic for handling ground movment*/
@@ -137,10 +150,8 @@ namespace LBMechanics
 
 	/*A basic transition mechanic for handling movement transitions*/
 	[CreateAssetMenu(fileName = "NewMovementTransitionMechanic", menuName = "LBMechanics/MovementTransitionMechanic")]
-	public class LBMovementTransitionMechanic: LBTransitionMechanic
+	public class LBMovementTransitionMechanic: LBMovementMechanic
 	{
-		protected Rigidbody rb;
-
 		public bool CheckIsOnGround;
 		public bool CheckIsInAir;
 		public bool CheckSpeedMagnitude;

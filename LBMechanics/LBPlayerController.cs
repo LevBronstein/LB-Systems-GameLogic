@@ -13,24 +13,38 @@ namespace LBMechanics
 		{
 			ctrl = GetComponent<LBCharacterController> ();
 		}
-		
+
+		Vector3 GetMovementDirection()
+		{
+			Vector3 v;
+
+			v = Vector3.zero;
+
+			if (Input.GetKey (KeyCode.UpArrow))
+				v = v + Vector3.forward;
+
+			if (Input.GetKey (KeyCode.LeftArrow))
+				v = v + Vector3.left;
+
+			if (Input.GetKey (KeyCode.RightArrow))
+				v = v + Vector3.right;
+
+			if (Input.GetKey (KeyCode.DownArrow))
+				v = v + Vector3.back;
+
+			return v;
+		}
+
 		// Update is called once per frame
 		void Update () 
 		{
-			if (Input.GetKey (KeyCode.UpArrow)) 
-				ctrl.SetControlValue ("Movement_Speed", 2.0f);
-			else 
-				ctrl.SetControlValue ("Movement_Speed", 0.0f);
-			
-			if (Input.GetKey (KeyCode.LeftArrow))
-				ctrl.SetControlValue ("Movement_Direction", new Vector3 (1.0f, 0, 0));
-			else 
-			{
-				if (Input.GetKey (KeyCode.RightArrow)) 
-					ctrl.SetControlValue ("Movement_Direction", new Vector3(-1.0f,0,0));
-				else
-					ctrl.SetControlValue ("Movement_Direction", new Vector3(0,0,0));
-			}
+			Vector3 v;
+
+			v = GetMovementDirection ();
+
+			ctrl.SetControlValue ("Movement_Direction", v.normalized);
+
+			ctrl.SetControlValue ("Movement_Speed", v.magnitude);
 		}
 	}
 }

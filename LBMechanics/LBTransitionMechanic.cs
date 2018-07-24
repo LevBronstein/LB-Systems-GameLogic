@@ -5,6 +5,35 @@ using UnityEngine;
 /*A mechanic, which is able to switch to and from mechanics with animation blending*/
 namespace LBMechanics
 {
+	[System.Serializable]
+	public struct MechanicParameter
+	{
+		public string Name;
+		public object Value;
+		public bool UseControlValue;
+
+		public MechanicParameter(string name)
+		{
+			Name = name;
+			Value = null;
+			UseControlValue = false;
+		}
+
+		public MechanicParameter(string name, object value)
+		{
+			Name = name;
+			Value = value;
+			UseControlValue = false;
+		}
+
+		public MechanicParameter(string name, object value, bool busecv)
+		{
+			Name = name;
+			Value = value;
+			UseControlValue = busecv;
+		}
+	}
+
 	[CreateAssetMenu(fileName = "NewTransitionMechanic", menuName = "LBMechanics/TransitionMechanic")]
 	public class LBTransitionMechanic: LBMechanicBase
 	{
@@ -100,6 +129,27 @@ namespace LBMechanics
 			return value;
 		}
 
+		protected object GetControlValue(MechanicParameter param)
+		{
+			LBCharacterController ctrl;
+
+			if (param.UseControlValue) 
+			{
+				ctrl = (LBCharacterController)mechexec;
+
+				if (ctrl == null)
+					return null;
+
+				object value;
+
+				value = ctrl.GetControlValue (param.Name);
+
+				return value;
+			}
+
+			return null;
+		}
+
 		//пофиксить, если нет анимации
 		public override void Tick()
 		{
@@ -107,6 +157,21 @@ namespace LBMechanics
 			{
 				SwitchMechanic ();
 			}
+		}
+	}
+
+	[CreateAssetMenu(fileName = "NewConditionalTransitionMechanic", menuName = "LBMechanics/TransitionMechanic")]
+	public class LBConditionalTransitionMechanic: LBTransitionMechanic
+	{
+
+		public override bool CanActivateMechanic()
+		{
+			return base.CanActivateMechanic () && CheckConditions ();
+		}
+
+		protected virtual bool CheckConditions()
+		{
+			return true;
 		}
 	}
 }
